@@ -31,6 +31,7 @@ public:
 	virtual ~Student();
 
 	std::string toString();
+	void studentLoop();
 };
 
 #endif /* STUDENT_H_ */

@@ -5,6 +5,7 @@
  *      Author: debian
  */
 
+#include <mpi.h>
 #include "Student.h"
 
 Student::Student(int studentsNumber, int studentID) {
@@ -25,8 +26,31 @@ std::string Student::toString() {
     result.append(std::to_string(studentID));
     result.append(" state: ");
     result.append(stateName[actualState]);
+    if (groupID>0){
+        result.append(" groupID: ");
+        result.append(std::to_string(groupID));
+    }
+    if (groupLamportTime>0){
+        result.append(" groupLamportTime: ");
+        result.append(std::to_string(groupLamportTime));
+    }
     return result;
 }
+
+void Student::studentLoop() {
+    bool message;
+    MPI_Status status;
+    while(true){
+        MPI_Recv(&message, sizeof(message), MPI_C_BOOL,
+                 MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        printf("Student : %s \n", toString().c_str());
+        if (message==false){
+            break;
+        }
+    }
+}
+
+
 
 
 
