@@ -9,6 +9,10 @@
 #define LAMPORT_H_
 
 class Lamport {
+
+private:
+
+
 public:
 	Lamport();
 	virtual ~Lamport();

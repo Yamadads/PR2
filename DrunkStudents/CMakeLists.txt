@@ -16,7 +16,7 @@ set(SOURCE_FILES
     State.cpp
     State.h
     Student.cpp
-    Student.h)
+    Student.h StateEnum.h)
 
 include_directories(.)
 

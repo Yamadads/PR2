@@ -7,12 +7,26 @@
 
 #include "Student.h"
 
-Student::Student() {
-	// TODO Auto-generated constructor stub
-
+Student::Student(int studentsNumber, int studentID) {
+    this->studentsNumber = studentsNumber;
+    this->studentID = studentID;
+    lamport = new Lamport();
+    groupID = 0;
+    groupLamportTime = 0;
+    actualState = NOT_WANT_DRINK;
 }
 
 Student::~Student() {
-	// TODO Auto-generated destructor stub
 }
+
+std::string Student::toString() {
+    std::string result;
+    result = "ID: ";
+    result.append(std::to_string(studentID));
+    result.append(" state: ");
+    result.append(stateName[actualState]);
+    return result;
+}
+
+
 
