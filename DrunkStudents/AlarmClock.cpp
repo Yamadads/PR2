@@ -27,7 +27,7 @@ void AlarmClock::alarmLoop() {
         while (true) {
             sleep(sleepTime);
             for (int i = 1; i <= studentsNumber; i++) {
-                MPI_Send(&message, sizeof(message), MPI_C_BOOL,
+                MPI_Send(&message, sizeof(message), MPI_BYTE,
                          i, WAKE_UP, MPI_COMM_WORLD);
             }
         }
@@ -36,13 +36,13 @@ void AlarmClock::alarmLoop() {
             repetitions--;
             sleep(sleepTime);
             for (int i = 1; i <= studentsNumber; i++) {
-                MPI_Send(&message, sizeof(message), MPI_C_BOOL,
+                MPI_Send(&message, sizeof(message), MPI_BYTE,
                          i, WAKE_UP, MPI_COMM_WORLD);
             }
         }
         message.running = false;
         for (int i = 1; i <= studentsNumber; i++) {
-            MPI_Send(&message, sizeof(message), MPI_C_BOOL,
+            MPI_Send(&message, sizeof(message), MPI_BYTE,
                      i, WAKE_UP, MPI_COMM_WORLD);
         }
     }

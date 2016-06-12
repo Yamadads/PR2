@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
     srand(time(NULL)+rank);
     if (size > 1) {
         if (rank > 0) {
-            Student *student = new Student(size, rank);
+            Student *student = new Student(size-1, rank);
             student->studentLoop();
             delete student;
         } else {

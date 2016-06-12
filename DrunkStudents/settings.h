@@ -10,4 +10,4 @@
 const unsigned int SLEEP_TIME = 1;
 const unsigned int REPETITIONS = 0;
 const unsigned int MIN_STATE_TIME = 5;
-const unsigned int MAX_STATE_TIME = 10;
+const unsigned int MAX_STATE_TIME = 15;
