@@ -6,13 +6,24 @@
  */
 
 #include "Lamport.h"
+#include <algorithm>
 
 Lamport::Lamport() {
-	// TODO Auto-generated constructor stub
-
+    timestamp = 0;
 }
 
 Lamport::~Lamport() {
-	// TODO Auto-generated destructor stub
+}
+
+void Lamport::increment() {
+    timestamp++;
+}
+
+void Lamport::update(long receivedTimestamp) {
+    this->timestamp = std::max(receivedTimestamp, timestamp) + 1;
+}
+
+long Lamport::getTimestamp() {
+    return timestamp;
 }
 

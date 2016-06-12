@@ -11,11 +11,16 @@
 class Lamport {
 
 private:
-
+	long timestamp;
 
 public:
 	Lamport();
 	virtual ~Lamport();
+
+	void increment();
+	void update(long receivedTimestamp);
+	long getTimestamp();
+
 };
 
 #endif /* LAMPORT_H_ */

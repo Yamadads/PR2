@@ -20,7 +20,7 @@ set(SOURCE_FILES
         StateEnum.h
         AlarmClock.cpp
         AlarmClock.h
-        MessageTag.h)
+        MessageTag.h Message.h settings.h)
 
 include_directories(.)
 

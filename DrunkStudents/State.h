@@ -8,9 +8,15 @@
 #ifndef STATE_H_
 #define STATE_H_
 
+#include "Student.h"
+
 class State {
+private:
+	Student *student;
+
+
 public:
-	State();
+	State(Student *student);
 	virtual ~State();
 };
 

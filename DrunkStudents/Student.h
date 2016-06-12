@@ -12,7 +12,9 @@
 
 #include "StateEnum.h"
 #include "Lamport.h"
+#include "Message.h"
 #include <string>
+#include <vector>
 
 class Student {
 private:
@@ -23,8 +25,16 @@ private:
 	int groupID;
 	int groupLamportTime;
 
-	Lamport* lamport;
+	std::vector<Message> lastMessages;
 
+	Lamport* lamport;
+	long nextStateTime;
+
+	void wakeUpMessage(bool &running, Message message);
+	void requestMessage(Message message);
+	void replyMessage(Message message);
+	void wantDrinkDecision();
+	void notWantDrinkDecision();
 public:
 
 	Student(int studentsNumber, int studentID);
@@ -32,6 +42,7 @@ public:
 
 	std::string toString();
 	void studentLoop();
+	void showStateInformation();
 };
 
 #endif /* STUDENT_H_ */

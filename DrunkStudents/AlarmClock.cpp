@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <mpi.h>
 #include "MessageTag.h"
+#include "Message.h"
 
 AlarmClock::AlarmClock(unsigned int studentsNumber, unsigned int sleepTime) {
     this->studentsNumber = studentsNumber;
@@ -20,7 +21,8 @@ AlarmClock::AlarmClock(unsigned int studentsNumber, unsigned int sleepTime, unsi
 }
 
 void AlarmClock::alarmLoop() {
-    bool message = true;
+    Message message;
+    message.running=true;
     if (repetitions == 0) {
         while (true) {
             sleep(sleepTime);
@@ -38,7 +40,7 @@ void AlarmClock::alarmLoop() {
                          i, WAKE_UP, MPI_COMM_WORLD);
             }
         }
-        message = false;
+        message.running = false;
         for (int i = 1; i <= studentsNumber; i++) {
             MPI_Send(&message, sizeof(message), MPI_C_BOOL,
                      i, WAKE_UP, MPI_COMM_WORLD);
