@@ -95,7 +95,7 @@ void Student::wakeUpMessage(bool &running, Message message) {
                     notWantDrinkDecision();
                 }
             }
-            showStateInformation();
+//            showStateInformation();
         }
     }
 }
