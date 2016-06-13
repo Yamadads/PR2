@@ -20,7 +20,7 @@ void Lamport::increment() {
 }
 
 void Lamport::update(long receivedTimestamp) {
-    this->timestamp = std::max(receivedTimestamp, timestamp) + 1;
+    this->timestamp = std::max(receivedTimestamp, timestamp);
 }
 
 long Lamport::getTimestamp() {
