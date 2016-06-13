@@ -36,6 +36,7 @@ private:
 
     std::map<int, Message> *lastMessages;
     bool needResponse;
+    bool waitingForArbiter;
     std::vector<bool> *requiredResponse;
     Lamport *lamport;
     long nextStateTime;
@@ -56,7 +57,7 @@ private:
 
     void replyWantArbiter(Message message);
 
-    void wantDrinkDecision();
+    void wantDrinkDecision(int time);
 
     void notWantDrinkDecision();
 
@@ -71,6 +72,11 @@ private:
     void mpiCustomSend(Message message, int receiver, MessageTag tag);
 
     void setState(stateEnum state);
+
+    void setNeedResponse();
+
+    void checkLocalMessages(int time);
+
 
 public:
 

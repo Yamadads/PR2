@@ -14,6 +14,7 @@
 Student::Student(int studentsNumber, int studentID, int arbitersNumber) {
     this->studentsNumber = studentsNumber;
     this->studentID = studentID;
+    waitingForArbiter = false;
     arbitersQueue = new ArbitersQueue(arbitersNumber);
     lamport = new Lamport();
     needResponse = false;
@@ -33,7 +34,6 @@ Student::~Student() {
     delete lamport;
     delete requiredResponse;
     delete lastMessages;
-
 }
 
 std::string Student::toString() {
@@ -89,7 +89,7 @@ void Student::wakeUpMessage(bool &running, Message message) {
     if (nextStateTime != 0) {
         if (nextStateTime <= time(0)) {
             if (actualState == NOT_WANT_DRINK) {
-                wantDrinkDecision();
+                wantDrinkDecision(lamport->getTimestamp()+1);
             } else {
                 if (actualState == DRINK) {
                     notWantDrinkDecision();
@@ -114,7 +114,7 @@ void Student::requestMessage(Message message) {
             requestWantArbiter(message);
             break;
         default:
-            printf("Unknown state");
+            printf("Unknown state request");
             break;
     }
 }
@@ -122,37 +122,22 @@ void Student::requestMessage(Message message) {
 /**
  * Join to older group or send request to all students
  */
-void Student::wantDrinkDecision() {
+void Student::wantDrinkDecision(int time) {
     setState(WANT_DRINK);
-    for (auto &message : *lastMessages) {
-        if (message.second.state == WANT_DRINK) {
-
-            if ((message.second.groupLamportTime < lamport->getTimestamp()) ||
-                ((message.second.groupLamportTime == lamport->getTimestamp()) &&
-                 (message.second.studentID < studentID))) {
-                if (message.second.groupID == message.second.studentID) {
-                    //if there is no group yet or is in younger group
-                    if ((groupLamportTime == 0) || (groupLamportTime > message.second.groupLamportTime) ||
-                        ((groupLamportTime == message.second.groupLamportTime) && (groupID > message.second.groupID))) {
-                        groupID = message.second.groupID;
-                        groupLamportTime = message.second.groupLamportTime;
-                    }
-                }
-            }
-        }
-    }
+    groupLamportTime = 0;
+    checkLocalMessages(time);
     //join to group
     if (groupLamportTime != 0) {
         lamport->increment();
         Message message = setMessage();
         mpiCustomSend(message, groupID, REQUEST);
         joinLamportTime = lamport->getTimestamp();
-        oldGroupLamportTime = lamport->getTimestamp();
+        oldGroupLamportTime = time;
     } else {
         // ask all students if want drink
         lamport->increment();
         groupID = studentID;
-        groupLamportTime = lamport->getTimestamp();
+        groupLamportTime = time;
         oldGroupLamportTime = groupLamportTime;
         Message message = setMessage();
         for (int i = 1; i <= studentsNumber; i++) {
@@ -161,12 +146,7 @@ void Student::wantDrinkDecision() {
             }
             mpiCustomSend(message, i, REQUEST);
         }
-        //set that need response
-        for (int i = 0; i < requiredResponse->size(); i++) {
-            (*requiredResponse)[i] = true;
-        }
-        groupSize = 0;
-        needResponse = true;
+        setNeedResponse();
     }
     nextStateTime = 0;
 }
@@ -176,17 +156,15 @@ void Student::showStateInformation() {
 }
 
 void Student::notWantDrinkDecision() {
+    arbitersQueue->removeRequest(groupLamportTime, groupID, studentID);
     setState(NOT_WANT_DRINK);
-    groupID = 0;
-    groupLamportTime = 0;
     Message message = setMessage();
     for (int i = 1; i <= studentsNumber; i++) {
         if (i == studentID) continue;
-        printf("tutaj3\n");
         mpiCustomSend(message, i, REQUEST);
     }
-
-    //TODO sekcja krytyczna
+    groupID = 0;
+    groupLamportTime = 0;
     nextStateTime = time(0) + rand() % (MAX_STATE_TIME - MIN_STATE_TIME) + MIN_STATE_TIME;
 }
 
@@ -202,7 +180,14 @@ Message Student::setMessage() {
 }
 
 void Student::requestNotWantDrink(Message message) {
-    //TODO zwolnić zasób arbitra w lokalnej kolejce to samo we wszystkich stanach
+    arbitersQueue->removeRequest(message.groupLamportTime, message.groupID, message.studentID);
+    if (waitingForArbiter) {
+        if (arbitersQueue->canGetArbiter(groupLamportTime, groupID, studentID)) {
+            setState(DRINK);
+            waitingForArbiter = false;
+            nextStateTime = time(0) + rand() % (MAX_STATE_TIME - MIN_STATE_TIME) + MIN_STATE_TIME;
+        }
+    }
 }
 
 void Student::requestWantDrink(Message message) {
@@ -223,6 +208,8 @@ void Student::requestWantDrink(Message message) {
                     mpiCustomSend(response, i, REQUEST);
                 }
             }
+        }else{
+
         }
     } else {
         sendReplyWithState(message);
@@ -230,27 +217,30 @@ void Student::requestWantDrink(Message message) {
 }
 
 void Student::requestWantArbiter(Message message) {
-    if (actualState == WANT_ARBITER) {
+    arbitersQueue->addRequest(message.groupLamportTime, message.groupID, message.studentID);
+    if (actualState == WANT_DRINK) {
         if ((message.studentID == groupID) && (message.groupID == groupID) &&
             (message.groupLamportTime == groupLamportTime)) {
-            if (message.timestamp>joinLamportTime){
+            if (message.timestamp > joinLamportTime) {
                 setState(WANT_ARBITER);
+                lamport->increment();
+                Message response = setMessage();
+                mpiCustomSend(response, message.studentID, REPLY);
                 lamport->increment();
                 for (int i = 1; i <= studentsNumber; i++) {
                     if (i == studentID) continue;
                     Message response = setMessage();
-                    if (i == message.studentID) {
-                        mpiCustomSend(response, i, REPLY);
-                    }
                     mpiCustomSend(response, i, REQUEST);
                 }
-            }else{
-                groupID = studentID;
-                groupLamportTime = oldGroupLamportTime;
+                setNeedResponse();
 
+            } else { //need to start again
+                groupID = studentID;
+                wantDrinkDecision(oldGroupLamportTime);
             }
         }
     }
+    sendReplyWithState(message);
 }
 
 void Student::sendReplyWithState(Message message) {
@@ -290,7 +280,7 @@ void Student::replyMessage(Message message) {
             replyWantArbiter(message);
             break;
         default:
-            printf("Unknown state");
+            printf("Unknown state reply %i\n", actualState );
     }
 }
 
@@ -322,11 +312,23 @@ void Student::replyWantDrink(Message message) {
             }
         }
     }
-
 }
 
 void Student::replyWantArbiter(Message message) {
-
+    if (message.state == WANT_ARBITER) {
+        arbitersQueue->addRequest(message.groupLamportTime, message.groupID, message.studentID);
+    }
+    (*requiredResponse)[message.studentID - 1] = false;
+    if (responseComplete()) {
+        needResponse = false;
+        if (arbitersQueue->canGetArbiter(groupLamportTime, groupID, studentID)) {
+            waitingForArbiter = false;
+            setState(DRINK);
+            nextStateTime = time(0) + rand() % (MAX_STATE_TIME - MIN_STATE_TIME) + MIN_STATE_TIME;
+        } else {
+            waitingForArbiter = true;
+        }
+    }
 }
 
 void Student::setState(stateEnum state) {
@@ -337,9 +339,40 @@ void Student::setState(stateEnum state) {
 void Student::mpiCustomSend(Message message, int receiver, MessageTag tag) {
     MPI_Send(&message, sizeof(message), MPI_BYTE,
              receiver, tag, MPI_COMM_WORLD);
-    printf("SenderID: %i, receiverID: %i, time: %i, state: %i, groupID: %i\n", studentID, receiver, message.timestamp,
-           message.state, message.groupID);
+    printf("Time: %i ID: %i state: %i receiverID: %i, groupID: %i, tag: %i\n", message.timestamp, studentID, message.state,
+           receiver, message.groupID, tag);
 }
+
+void Student::setNeedResponse() {
+    for (int i = 0; i < requiredResponse->size(); i++) {
+        (*requiredResponse)[i] = true;
+    }
+    groupSize = 0;
+    needResponse = true;
+}
+
+void Student::checkLocalMessages(int time) {
+    for (auto &message : *lastMessages) {
+        if (message.second.state == WANT_DRINK) {
+            if ((message.second.groupLamportTime < time) ||
+                ((message.second.groupLamportTime == time) &&
+                 (message.second.studentID < studentID))) {
+                if (message.second.groupID == message.second.studentID) {
+                    //if there is no group yet or is in younger group
+                    if ((groupLamportTime == 0) || (groupLamportTime > message.second.groupLamportTime) ||
+                        ((groupLamportTime == message.second.groupLamportTime) && (groupID > message.second.groupID))) {
+                        groupID = message.second.groupID;
+                        groupLamportTime = message.second.groupLamportTime;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
 
 
 
