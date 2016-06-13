@@ -8,13 +8,18 @@
 #include <map>
 #include <set>
 #include <vector>
-
+struct id{
+    int time;
+    int groupId;
+};
 
 class ArbitersQueue {
 private:
-    std::map<int, std::map<int, std::set<int>*>*> *requests;
+    std::map<std::string, int> *requests;
+    std::map<std::string, id> *help;
     int arbitersNumber;
-
+    id getID(int groupTimestamp, int groupID);
+    std::string getIDstr(int groupTimestamp, int groupID);
 public:
     ArbitersQueue(int arbitersNumber);
     ~ArbitersQueue();
