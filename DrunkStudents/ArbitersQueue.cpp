@@ -10,6 +10,7 @@ ArbitersQueue::ArbitersQueue(int arbitersNumber) {
 }
 
 void ArbitersQueue::addRequest(int groupTimestamp, int groupID, int studentID) {
+//    printf("before add %i\n", requests->size());
     if (requests->find(groupTimestamp) != requests->end()) {
         if ((*requests)[groupTimestamp]->find(groupID) != (*requests)[groupID]->end()) {
             if ((*(*requests)[groupTimestamp])[groupID]->find(studentID) ==
@@ -25,25 +26,33 @@ void ArbitersQueue::addRequest(int groupTimestamp, int groupID, int studentID) {
         (*(*requests)[groupTimestamp])[groupID] = new std::set<int>();
         (*(*requests)[groupTimestamp])[groupID]->insert(studentID);
     }
+//    printf("after add %i\n", requests->size());
 }
 
 void ArbitersQueue::removeRequest(int groupTimestamp, int groupID, int studentID) {
+//    printf("before remove %i\n", requests->size());
     if (requests->find(groupTimestamp) != requests->end()) {
+//        printf("erase1\n");
         if ((*requests)[groupTimestamp]->find(groupID) != (*requests)[groupID]->end()) {
-            if ((*(*requests)[groupTimestamp])[groupID]->find(studentID) ==
+//            printf("erase2\n");
+            if ((*(*requests)[groupTimestamp])[groupID]->find(studentID) !=
                 (*(*requests)[groupTimestamp])[groupID]->end()) {
+//                printf("erase3\n");
                 (*(*requests)[groupTimestamp])[groupID]->erase(studentID);
                 if ((*(*requests)[groupTimestamp])[groupID]->size() == 0) {
+//                    printf("erase4\n");
                     delete (*(*requests)[groupTimestamp])[groupID];
                     (*requests)[groupTimestamp]->erase(groupID);
                     if ((*requests)[groupTimestamp]->size() == 0) {
                         delete (*requests)[groupTimestamp];
                         requests->erase(groupTimestamp);
+//                        printf("erase\n");
                     }
                 }
             }
         }
     }
+//    printf("after remove %i\n", requests->size());
 }
 
 bool ArbitersQueue::canGetArbiter(int groupTimestamp, int groupID, int studentID) {
@@ -64,6 +73,8 @@ bool ArbitersQueue::canGetArbiter(int groupTimestamp, int groupID, int studentID
                         }
                     }
                 }
+//                printf("count: %i\n", count);
+//                printf("after count %i\n", requests->size());
                 if (count < arbitersNumber) {
                     return true;
                 }

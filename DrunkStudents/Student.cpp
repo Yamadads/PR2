@@ -342,7 +342,7 @@ void Student::setState(stateEnum state) {
 void Student::mpiCustomSend(Message message, int receiver, MessageTag tag) {
     MPI_Send(&message, sizeof(message), MPI_BYTE,
              receiver, tag, MPI_COMM_WORLD);
-    printf("Time: %i ID: %i state: %i receiverID: %i, groupID: %i, tag: %i\n", message.timestamp, studentID, message.state,
+    printf("time: %i ID: %i state: %i receiverID: %i, groupID: %i, tag: %i\n", message.timestamp, studentID, message.state,
            receiver, message.groupID, tag);
 }
 
