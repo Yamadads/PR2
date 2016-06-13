@@ -14,57 +14,76 @@
 #include "Lamport.h"
 #include "Message.h"
 #include "MessageTag.h"
+#include "ArbitersQueue.h"
 #include <string>
 #include <map>
 #include <vector>
 
 class Student {
 private:
-	int studentsNumber;
-	int studentID;
+    int studentsNumber;
+    int studentID;
 
-	stateEnum actualState;
-	int groupID;
-	int groupLamportTime;
-	int joinLamportTime;
-	int groupSize;
+    ArbitersQueue *arbitersQueue;
 
-	int oldGroupLamportTime;
+    stateEnum actualState;
+    int groupID;
+    int groupLamportTime;
+    int joinLamportTime;
+    int groupSize;
 
-	std::map<int,Message> *lastMessages;
-	bool needResponse;
-	std::vector<bool> *requiredResponse;
-	Lamport* lamport;
-	long nextStateTime;
+    int oldGroupLamportTime;
 
-	void wakeUpMessage(bool &running, Message message);
-	void requestMessage(Message message);
-	void replyMessage(Message message);
+    std::map<int, Message> *lastMessages;
+    bool needResponse;
+    std::vector<bool> *requiredResponse;
+    Lamport *lamport;
+    long nextStateTime;
 
-	void requestNotWantDrink(Message message);
-	void requestWantDrink(Message message);
-	void requestWantArbiter(Message message);
+    void wakeUpMessage(bool &running, Message message);
 
-	void replyWantDrink(Message message);
-	void replyWantArbiter(Message message);
+    void requestMessage(Message message);
 
-	void wantDrinkDecision();
-	void notWantDrinkDecision();
+    void replyMessage(Message message);
 
-	Message setMessage();
-	void sendReplyWithState(Message message);
-	bool older(Message message);
-	bool responseComplete();
-	void mpiCustomSend(Message message, int receiver,MessageTag tag);
+    void requestNotWantDrink(Message message);
+
+    void requestWantDrink(Message message);
+
+    void requestWantArbiter(Message message);
+
+    void replyWantDrink(Message message);
+
+    void replyWantArbiter(Message message);
+
+    void wantDrinkDecision();
+
+    void notWantDrinkDecision();
+
+    Message setMessage();
+
+    void sendReplyWithState(Message message);
+
+    bool older(Message message);
+
+    bool responseComplete();
+
+    void mpiCustomSend(Message message, int receiver, MessageTag tag);
+
+    void setState(stateEnum state);
+
 public:
 
-	Student(int studentsNumber, int studentID);
-	virtual ~Student();
+    Student(int studentsNumber, int studentID, int arbitersNumber);
 
-	std::string toString();
-	void studentLoop();
-	void showStateInformation();
-	void setState(stateEnum state);
+    virtual ~Student();
+
+    std::string toString();
+
+    void studentLoop();
+
+    void showStateInformation();
+
 };
 
 #endif /* STUDENT_H_ */

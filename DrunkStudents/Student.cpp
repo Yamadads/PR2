@@ -11,9 +11,10 @@
 #include "MessageTag.h"
 #include "settings.h"
 
-Student::Student(int studentsNumber, int studentID) {
+Student::Student(int studentsNumber, int studentID, int arbitersNumber) {
     this->studentsNumber = studentsNumber;
     this->studentID = studentID;
+    arbitersQueue = new ArbitersQueue(arbitersNumber);
     lamport = new Lamport();
     needResponse = false;
     groupID = 0;
@@ -28,6 +29,11 @@ Student::Student(int studentsNumber, int studentID) {
 }
 
 Student::~Student() {
+    delete arbitersQueue;
+    delete lamport;
+    delete requiredResponse;
+    delete lastMessages;
+
 }
 
 std::string Student::toString() {
