@@ -33,6 +33,7 @@ void ArbitersQueue::removeRequest(int groupTimestamp, int groupID, int studentID
             help->erase(strID);
         }
     }
+    printf("size %i\n", requests->size());
 }
 
 bool ArbitersQueue::canGetArbiter(int groupTimestamp, int groupID, int studentID) {
@@ -48,6 +49,7 @@ bool ArbitersQueue::canGetArbiter(int groupTimestamp, int groupID, int studentID
                 count++;
             }
         }
+        printf("count %i\n", count);
         if ((count)<arbitersNumber){
             return true;
         }
