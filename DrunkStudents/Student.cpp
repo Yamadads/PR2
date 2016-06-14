@@ -18,6 +18,8 @@ Student::Student(int studentsNumber, int studentID, int arbitersNumber) {
     lamport = new Lamport();
     groupID = 0;
     waitForArbiter = false;
+    waitForOther = false;
+    waitForArbiterInit = false;
     groupLamportTime = 0;
     setState(NOT_WANT_DRINK);
     lastMessages = new std::map<int, Message>();
@@ -127,25 +129,16 @@ void Student::wantDrinkDecision() {
         askStudents();
         myFriends.clear();
         receiveReplyWantDrink();
-        if (groupID==studentID){
-            if (myFriends.size()>0) {
-                setState(WANT_ARBITER);
-                askStudents();
-                myFriends.clear();
-                receiveReplyWantArbiter();
-                if (arbitersQueue->canGetArbiter(groupLamportTime, groupID, studentID)){
-                    waitForArbiter = false;
-                    setState(DRINK);
-                }else{
-                    waitForArbiter = true;
-                    nextStateTime = 0;
-                }
-            }else{
+        if (groupID == studentID) {
+            if (myFriends.size() > 0) {
+                wantArbiterState();
+            } else {
                 nextStateTime = 0;
-                //wait younger
+                waitForOther = true;
             }
-        }else{
-            //wait for init from other process
+        } else {
+            waitForArbiterInit = true;
+
         }
     }
 }
@@ -190,8 +183,9 @@ bool Student::older(Message message) {
 
 void Student::setState(stateEnum state) {
     actualState = state;
-    if (state==DRINK){
-        nextStateTime = time(0) + rand() % (std::max((MAX_STATE_TIME - MIN_STATE_TIME), (unsigned int) 1)) + MIN_STATE_TIME;
+    if (state == DRINK) {
+        nextStateTime =
+                time(0) + rand() % (std::max((MAX_STATE_TIME - MIN_STATE_TIME), (unsigned int) 1)) + MIN_STATE_TIME;
     }
     showStateInformation();
 }
@@ -224,6 +218,8 @@ void Student::checkLocalMessages(int time) {
     }
 }
 
+
+
 void Student::askStudents() {
     lamport->increment();
     groupID = studentID;
@@ -246,12 +242,12 @@ void Student::receiveReplyWantDrink() {
         MPI_Recv(&message, sizeof(message), MPI_BYTE,
                  i, REPLY, MPI_COMM_WORLD, &status);
         lamport->update(message.timestamp);
-        if (message.state==WANT_DRINK){
-            if (older(message)){
+        if (message.state == WANT_DRINK) {
+            if (older(message)) {
                 groupID = message.groupID;
                 groupLamportTime = message.groupLamportTime;
-            }else{
-                myFriends[message.studentID]=message.groupLamportTime;
+            } else {
+                myFriends[message.studentID] = message.groupLamportTime;
             }
         }
     }
@@ -268,11 +264,75 @@ void Student::receiveReplyWantArbiter() {
                  i, REPLY, MPI_COMM_WORLD, &status);
         lamport->update(message.timestamp);
         arbitersQueue->clear();
-        if (message.state==WANT_ARBITER){
+        if (message.state == WANT_ARBITER) {
             arbitersQueue->addRequest(message);
         }
     }
 }
+
+void Student::requestNotWantDrink(Message message) {
+    if (waitForArbiter) {
+        arbitersQueue->removeRequest(message);
+        if (arbitersQueue->canGetArbiter(groupLamportTime, groupID, studentID)) {
+            waitForArbiter = false;
+            setState(DRINK);
+        }
+    }
+}
+
+void Student::requestWantDrink(Message message) {
+    if (waitForOther) {
+        if (message.groupID == studentID) {
+            actualState = WANT_ARBITER;
+            Message reply = setMessage();
+            mpiCustomSend(reply, message.studentID, REPLY);
+            wantArbiterState();
+        } else {
+            Message reply = setMessage();
+            mpiCustomSend(reply, message.studentID, REPLY);
+        }
+    } else {
+        Message reply = setMessage();
+        mpiCustomSend(reply, message.studentID, REPLY);
+    }
+}
+
+void Student::wantArbiterState() {
+    setState(WANT_ARBITER);
+    askStudents();
+    myFriends.clear();
+    receiveReplyWantArbiter();
+    if (arbitersQueue->canGetArbiter(groupLamportTime, groupID, studentID)) {
+        waitForArbiter = false;
+        setState(DRINK);
+    } else {
+        waitForArbiter = true;
+        nextStateTime = 0;
+    }
+}
+
+void Student::requestWantArbiter(Message message) {
+    if (waitForArbiterInit) {
+        if ((message.groupID == groupID) && (message.groupLamportTime == groupLamportTime)) {
+            actualState = WANT_ARBITER;
+            Message reply = setMessage();
+            mpiCustomSend(reply, message.studentID, REPLY);
+            wantArbiterState();
+            waitForArbiterInit = false;
+        }
+    }else{
+        Message reply = setMessage();
+        mpiCustomSend(reply, message.studentID, REPLY);
+    }
+}
+
+
+
+
+
+
+
+
 
 
 

@@ -36,30 +36,26 @@ private:
     long nextStateTime;
     std::map<int, int> myFriends;
     bool waitForArbiter;
-
+    bool waitForOther;
+    bool waitForArbiterInit;
     void wakeUpMessage(bool &running, Message message);
 
     void requestMessage(Message message);
+    void requestNotWantDrink(Message message);
+    void requestWantDrink(Message message);
+    void requestWantArbiter(Message message);
 
     void wantDrinkDecision();
-
     void notWantDrinkDecision();
-
     Message setMessage();
-
     bool older(Message message);
-
     void mpiCustomSend(Message message, int receiver, MessageTag tag);
-
     void setState(stateEnum state);
-
     void checkLocalMessages(int time);
-
     void askStudents();
-
     void receiveReplyWantDrink();
-
     void receiveReplyWantArbiter();
+    void wantArbiterState();
 
 public:
 
