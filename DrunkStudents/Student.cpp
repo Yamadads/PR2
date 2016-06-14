@@ -126,9 +126,12 @@ void Student::wantDrinkDecision() {
         mpiCustomSend(message, groupID, REQUEST);
     } else {
         groupLamportTime = lamport->getTimestamp();
+        printf("czas zapytać\n");
         askStudents();
+        printf("info do wszystkich\n");
         myFriends.clear();
         receiveReplyWantDrink();
+        printf("odpowiedzi\n");
         if (groupID == studentID) {
             if (myFriends.size() > 0) {
                 wantArbiterState();
@@ -239,8 +242,9 @@ void Student::receiveReplyWantDrink() {
             continue;
         }
         MPI_Status status;
-        MPI_Recv(&message, sizeof(message), MPI_BYTE,
-                 i, REPLY, MPI_COMM_WORLD, &status);
+        printf("przed custom receive\n");
+        customReceive(message,i,status);
+        printf("custom receice się udało\n");
         lamport->update(message.timestamp);
         if (message.state == WANT_DRINK) {
             if (older(message)) {
@@ -260,8 +264,7 @@ void Student::receiveReplyWantArbiter() {
             continue;
         }
         MPI_Status status;
-        MPI_Recv(&message, sizeof(message), MPI_BYTE,
-                 i, REPLY, MPI_COMM_WORLD, &status);
+        customReceive(message,i,status);
         lamport->update(message.timestamp);
         arbitersQueue->clear();
         if (message.state == WANT_ARBITER) {
@@ -325,6 +328,22 @@ void Student::requestWantArbiter(Message message) {
         mpiCustomSend(reply, message.studentID, REPLY);
     }
 }
+
+void Student::customReceive(Message &message, int receiver, MPI_Status &status) {
+    while(true){
+        MPI_Recv(&message, sizeof(message), MPI_BYTE,
+                 receiver, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        if (status.MPI_TAG==REPLY) return;
+        if (status.MPI_TAG==REQUEST){
+            lamport->update(message.timestamp);
+            (*lastMessages)[message.studentID] = message;
+            Message reply = setMessage();
+            mpiCustomSend(reply, message.studentID, REPLY);
+        }
+    }
+}
+
+
 
 
 
