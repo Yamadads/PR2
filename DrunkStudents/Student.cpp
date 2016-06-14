@@ -126,12 +126,9 @@ void Student::wantDrinkDecision() {
         mpiCustomSend(message, groupID, REQUEST);
     } else {
         groupLamportTime = lamport->getTimestamp();
-        printf("czas zapytać\n");
         askStudents();
-        printf("info do wszystkich\n");
         myFriends.clear();
         receiveReplyWantDrink();
-        printf("odpowiedzi\n");
         if (groupID == studentID) {
             if (myFriends.size() > 0) {
                 wantArbiterState();
@@ -153,6 +150,7 @@ void Student::showStateInformation() {
 void Student::notWantDrinkDecision() {
     arbitersQueue->removeRequest(groupLamportTime, groupID, studentID);
     setState(NOT_WANT_DRINK);
+    lamport->increment();
     Message message = setMessage();
     for (int i = 1; i <= studentsNumber; i++) {
         if (i == studentID) continue;
@@ -242,9 +240,7 @@ void Student::receiveReplyWantDrink() {
             continue;
         }
         MPI_Status status;
-        printf("przed custom receive\n");
         customReceive(message,i,status);
-        printf("custom receice się udało\n");
         lamport->update(message.timestamp);
         if (message.state == WANT_DRINK) {
             if (older(message)) {
@@ -286,15 +282,18 @@ void Student::requestNotWantDrink(Message message) {
 void Student::requestWantDrink(Message message) {
     if (waitForOther) {
         if (message.groupID == studentID) {
+            lamport->increment();
             actualState = WANT_ARBITER;
             Message reply = setMessage();
             mpiCustomSend(reply, message.studentID, REPLY);
             wantArbiterState();
         } else {
+            lamport->increment();
             Message reply = setMessage();
             mpiCustomSend(reply, message.studentID, REPLY);
         }
     } else {
+        lamport->increment();
         Message reply = setMessage();
         mpiCustomSend(reply, message.studentID, REPLY);
     }
@@ -318,12 +317,14 @@ void Student::requestWantArbiter(Message message) {
     if (waitForArbiterInit) {
         if ((message.groupID == groupID) && (message.groupLamportTime == groupLamportTime)) {
             actualState = WANT_ARBITER;
+            lamport->increment();
             Message reply = setMessage();
             mpiCustomSend(reply, message.studentID, REPLY);
             wantArbiterState();
             waitForArbiterInit = false;
         }
     }else{
+        lamport->increment();
         Message reply = setMessage();
         mpiCustomSend(reply, message.studentID, REPLY);
     }
@@ -337,6 +338,7 @@ void Student::customReceive(Message &message, int receiver, MPI_Status &status) 
         if (status.MPI_TAG==REQUEST){
             lamport->update(message.timestamp);
             (*lastMessages)[message.studentID] = message;
+            lamport->increment();
             Message reply = setMessage();
             mpiCustomSend(reply, message.studentID, REPLY);
         }
