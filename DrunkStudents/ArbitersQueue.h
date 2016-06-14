@@ -8,6 +8,8 @@
 #include <map>
 #include <set>
 #include <vector>
+#include "Message.h"
+
 struct id{
     int time;
     int groupId;
@@ -23,9 +25,13 @@ private:
 public:
     ArbitersQueue(int arbitersNumber);
     ~ArbitersQueue();
+    void addRequest(Message message);
     void addRequest(int groupTimestamp, int groupID, int studentID);
+    void removeRequest(Message message);
     void removeRequest(int groupTimestamp, int groupID, int studentID);
+    bool canGetArbiter(Message message);
     bool canGetArbiter(int groupTimestamp, int groupID, int studentID);
+    void clear();
 };
 
 

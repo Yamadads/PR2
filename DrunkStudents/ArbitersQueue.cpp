@@ -73,6 +73,33 @@ std::string ArbitersQueue::getIDstr(int groupTimestamp, int groupID) {
     return std::to_string(groupTimestamp)+"-"+std::to_string(groupID);
 }
 
+void ArbitersQueue::clear() {
+    delete requests;
+    delete help;
+    requests = new std::map<std::string, int>();
+    help = new std::map<std::string, id>();
+}
+
+void ArbitersQueue::addRequest(Message message) {
+    addRequest(message.groupLamportTime, message.groupID, message.studentID);
+}
+
+void ArbitersQueue::removeRequest(Message message) {
+    removeRequest(message.groupLamportTime, message.groupID, message.studentID);
+}
+
+bool ArbitersQueue::canGetArbiter(Message message) {
+    return canGetArbiter(message.groupLamportTime, message.groupID, message.studentID);
+}
+
+
+
+
+
+
+
+
+
 
 
 
