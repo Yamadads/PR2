@@ -1,0 +1,609 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language polish
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2.5cm
+\topmargin 2.5cm
+\rightmargin 2.5cm
+\bottommargin 2.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language polish
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Author
+Łukasz Królik
+\begin_inset Newline newline
+\end_inset
+
+117242
+\begin_inset Newline newline
+\end_inset
+
+Sebastian Pawlak
+\begin_inset Newline newline
+\end_inset
+
+117269
+\end_layout
+
+\begin_layout Title
+Zawody w piciu na umór
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Opis problemu
+\end_layout
+
+\begin_layout Standard
+W pewnym akademiku studenci postanowili urządzić zawody w celu pielęgnowania
+ szlachetnego ducha sportu.
+ Po próbach z podnoszeniem ciężarów oraz biegach na 200 metrów, ostatecznie
+ zadecydowano, że najlepiej do wizerunku studentów Politechniki Poznańskiej
+ będą pasować zawody w chlaniu na umór.
+ Pomysł ten tak się spodobał, że zawody zaczęto urządzać codziennie, a wreszcie
+ ustalono, że dowolna grupa studentów może równocześnie z innymi przystąpić
+ do chlania na umór.
+ Samorząd studencki wyznaczył grupę arbitrów o liczności A (parametr).
+ Arbitrzy są nierozróżnialni i należy ich traktować jako jeden zasób o liczności
+ A.
+\end_layout
+
+\begin_layout Standard
+W celu odbycia zawodów studenci (dowolna podgrupa o liczności większej niż
+ 1) najpierw zgłaszają chęć uczestnictwa (brak punktu centralnego).
+ Następnie studenci ubiegają się o dostęp do któregoś z arbitrów.
+ Następnie odbywają się zawody w chlaniu.
+ 
+\end_layout
+
+\begin_layout Section
+Przyjęte założenia dotyczące modelu komunikacji
+\end_layout
+
+\begin_layout Itemize
+system asynchroniczny z wymianą komunikatów
+\end_layout
+
+\begin_layout Itemize
+topologia połączeń 
+\begin_inset Quotes pld
+\end_inset
+
+każdy z każdym
+\begin_inset Quotes prd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+kanały typu FIFO
+\end_layout
+
+\begin_layout Section
+Algorytm 
+\end_layout
+
+\begin_layout Subsection
+Rola arbitra
+\end_layout
+
+\begin_layout Standard
+W naszym algorytmie ważną rolę pełnią arbitrzy, których obecność jest konieczna
+ w celu skutecznego przeprowadzenia zawodów.
+ Jest to zasób, którego liczność podaje się jako parametr przy wywołaniu
+ programu.
+ Informację o arbitrach mają wszyscy gracze.
+ W momencie, gdy drużynie udaje się zdobyć dostęp do sędziego, wtedy gracze
+ tej drużyny rozsyłają informację o tym zdarzeniu do wszystkich innych graczy,
+ oznaczając swoją obecność w polu o identyfikatorze przywódcy grupy (patrz
+ poniżej).
+ Po zakończonej turze każdy uczestnik konkursu rozsyła informację o tym,
+ że nie chce pić do pozostałych, skłaniając ich do tego, aby zwolnili zasób.
+ Ostatni z graczy ostatecznie zwalnia arbitra, umożliwiając dostęp do niego
+ innym graczom.
+\end_layout
+
+\begin_layout Subsection
+Rola organizatora
+\end_layout
+
+\begin_layout Standard
+Ważną rolę w rozgrywkach pełnią organizatorzy.
+ Są to przywódcy grupy, dzięki którym grupa jest identyfikowana, za pomocą
+ ich numeru.
+ Aby stać się organizatorem, trzeba być pierwszym człowiekiem spośród grupy,
+ który zaproponuje picie.
+ 
+\end_layout
+
+\begin_layout Standard
+Uwagi:
+\end_layout
+
+\begin_layout Itemize
+W przypadku, gdy okaże się, że dwóch studentów zaproponuje picie w tym samym
+ momencie zegara Lamporta, głównym organizatorem zostanie ten z niższym
+ identyfikatorem.
+\end_layout
+
+\begin_layout Itemize
+W przypadku, gdy jesteśmy organizatorem imprezy i otrzymamy zaproszenie
+ od człowieka o starszym zegarze wektorowym, stajemy się członkami jego
+ drużyny, zabierając przy okazji swój dotychczasowy zespół ze sobą.
+\end_layout
+
+\begin_layout Subsection
+Studenci
+\end_layout
+
+\begin_layout Standard
+Uruchamiając program podajemy jako argument liczbę procesów.
+ Pierwszy z procesów ma za zadanie budzić znajdujących się w stanie spoczynku
+ studentów.
+ Co pewien czas obudzony student musi podjąć decyzję, o tym, czy dalej chce
+ zachowywać się biernie czy też przystąpić do konkurencji.
+ 
+\end_layout
+
+\begin_layout Standard
+Pozostałe procesy symbolizują studentów.
+ Ich życie krąży wokół czterech stanów:
+\end_layout
+
+\begin_layout Itemize
+Nie chce pić,
+\end_layout
+
+\begin_layout Itemize
+Chce pić,
+\end_layout
+
+\begin_layout Itemize
+Oczekuje na arbitra,
+\end_layout
+
+\begin_layout Itemize
+Pije.
+\end_layout
+
+\begin_layout Standard
+Każdy proces symbolizujący studenta ma zaimplementowane dwie kolekcje, które
+ dostarczają wiedzy na temat otaczającego go świata.
+ Pierwsza, która zawiera informacje o tym, który arbiter jest dostępny,
+ została opisana powyżej.
+ Pola liderów drużyn są unikalnie oznaczane przez identyfikator, złożony
+ z identyfikatora lidera, oraz jego zegara wektorowego.
+\end_layout
+
+\begin_layout Standard
+Druga tabela zawiera informacje o wszystkich pozostałych uczestnikach zabawy
+ - ich identyfikatory, oraz ostatnie wiadomości.
+\end_layout
+
+\begin_layout Standard
+Posługując się tymi czterema momentami życia, student odpowiada procesowi
+ zerowemu oraz innym graczom, umawiając się na alkoholizację.
+\end_layout
+
+\begin_layout Standard
+Gracz twierdzący, że nie chce pić idzie spać, aż do momentu gdy zostanie
+ ponownie wybudzony - wtedy też podejmie ponowną decyzję odnośnie picia.
+\end_layout
+
+\begin_layout Standard
+Gracz chętny do picia wpierw przegląda listę ostatnich zgłoszeń do konkursu.
+ Jeśli któryś ze studentów jest chętny do picia, to gracz dołącza do jego
+ zawodów.
+ Jest to ważne, ponieważ w przeciwnym razie gracze ci zostaliby zagłodzeni.
+\end_layout
+
+\begin_layout Standard
+Jeśli okaże się, że żadnego takiego gracza nie udało się znaleźć, gracz
+ rozsyła zaproszenia do wszystkich graczy.
+ Po zebraniu decyzji od wszystkich uczstników, student w zależności od tego,
+ czy udało mu się znaleźć choćby jedną osobę zaczyna starania o arbitra
+ (przechodzi w stan 'Oczekuje na arbitra'), lub podejmuje decyzję o tym,
+ aby zrezygnować na pewien czas z picia, albo ponownie spróbować poszukać
+ kompanów.
+\end_layout
+
+\begin_layout Section
+Złożoność czasowa i komunikacyjna algorytmu
+\end_layout
+
+\begin_layout Standard
+Liczba rozesłanych komunikatów z uwzględnieniem dla jednego procesu (liczbę
+ wszystkich studentów oznaczam przez N):
+\end_layout
+
+\begin_layout Standard
+Złożoność komunikacyjna dla Studenta
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="7" columns="2">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Akcja 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Liczba kroków
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Rozgłoszenie gotowości o aktualnym statusie
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+N - 1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Zebranie odpowiedzi 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+N - 1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Propozycja picia
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+N - 1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Informacja o zdobyciu arbitra
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+N - 1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Informacja o zwolnieniu arbitra
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+N - 1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RAZEM:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5(N-1)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Złożoność czasowa dla Studenta 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="7" columns="2">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Akcja 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Liczba kroków
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Rozgłoszenie gotowości o aktualnym statusie
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Zebranie odpowiedzi 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Propozycja picia
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Informacja o zdobyciu arbitra
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Informacja o zwolnieniu arbitra
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RAZEM:
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_body
+\end_document
