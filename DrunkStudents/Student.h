@@ -56,6 +56,8 @@ private:
 
     Message setMessage();
 
+    void replyMessage(Message message);
+
     bool older(Message message);
 
     void mpiCustomSend(Message message, int receiver, MessageTag tag);

@@ -13,8 +13,6 @@ set(SOURCE_FILES
         Lamport.h
         main.cpp
         Makefile
-        State.cpp
-        State.h
         Student.cpp
         Student.h
         StateEnum.h
